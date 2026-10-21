@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.termoneplus"
+    android:installLocation="auto"
+    android:sharedUserId="${applicationId}">
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false"/>
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_SUPERUSER"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <permission
+        android:name="${applicationId}.permission.RUN_SCRIPT"
+        android:description="@string/permdesc_run_script"
+        android:label="@string/perm_run_script"
+        android:permissionGroup="android.permission-group.SYSTEM_TOOLS"
+        android:protectionLevel="dangerous"/>
+    <!-- deprecated: pending removal -->
+    <permission
+        android:name="${applicationId}.permission.APPEND_TO_PATH"
+        android:description="@string/permdesc_append_to_path"
+        android:label="@string/perm_append_to_path"
+        android:permissionGroup="android.permission-group.SYSTEM_TOOLS"
+        android:protectionLevel="signature"/>
+    <!-- deprecated: pending removal -->
+    <permission
+        android:name="${applicationId}.permission.PREPEND_TO_PATH"
+        android:description="@string/permdesc_prepend_to_path"
+        android:label="@string/perm_prepend_to_path"
+        android:permissionGroup="android.permission-group.SYSTEM_TOOLS"
+        android:protectionLevel="signature"/>
+
+    <application
+        android:name=".Application"
+        android:allowBackup="false"
+        android:extractNativeLibs="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/application_terminal"
+        android:resizeableActivity="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/AppTheme"
+        tools:ignore="UnusedAttribute">
+        <activity
+            android:name=".TermActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|layoutDirection|navigation|uiMode|density"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="jackpal.androidterm.RemoteInterface"
+            android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="com.termoneplus.OPEN_NEW_WINDOW"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <activity-alias
+            android:name=".TermHere"
+            android:exported="true"
+            android:label="@string/activity_term_here_title"
+            android:targetActivity="jackpal.androidterm.RemoteInterface">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+
+                <data android:mimeType="*/*"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name="jackpal.androidterm.RunScript"
+            android:excludeFromRecents="true"
+            android:permission="${applicationId}.permission.RUN_SCRIPT">
+            <intent-filter>
+                <action android:name="com.termoneplus.RUN_SCRIPT"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="jackpal.androidterm.RunShortcut"
+            android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="com.termoneplus.RUN_SHORTCUT"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name="jackpal.androidterm.TermService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="jackpal.androidterm.action.START_TERM.v1"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".WindowListActivity"
+            android:label="@string/window_list"
+            android:parentActivityName="com.termoneplus.TermActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.termoneplus.TermActivity"/>
+        </activity>
+        <activity
+            android:name=".TermPreferencesActivity"
+            android:label="@string/preferences"
+            android:parentActivityName="com.termoneplus.TermActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.termoneplus.TermActivity"/>
+        </activity>
+        <activity
+            android:name=".shortcuts.AddShortcut"
+            android:configChanges="orientation|keyboard|keyboardHidden"
+            android:label="@string/activity_shortcut_create"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.Translucent">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT"/>
+            </intent-filter>
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT"/>
+
+                <data android:mimeType="text/*"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".shortcuts.FileSelection"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="true"
+            android:label="@string/fsnavigator_title"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.PICK"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.GET_CONTENT"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.OPENABLE"/>
+
+                <data android:mimeType="*/*"/>
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="com.sec.android.support.multiwindow"
+            android:value="true">
+        </meta-data>
+        <!-- Note unused if resizeableActivity is true (default).
+        Render on full screen up to screen aspect ratio of "value"
+        Use a letterbox on screens larger than "value".
+        Recommend a ratio of 2.4 (12:5 > 21:9). -->
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4"/>
+        <!-- NOTE: Samsung DEX Version >= 3.0. DeX Dual Mode support.
+        Declares keepalive in the android manifest file, to avoid the process being killed
+        when switching between mobile and Samsung DeX. In addition, set the android:configChanges
+        to avoid restarting the app during the switching process.
+         -->
+        <meta-data
+            android:name="com.samsung.android.multidisplay.keep_process_alive"
+            android:value="true"/>
+
+    </application>
+
+</manifest>
