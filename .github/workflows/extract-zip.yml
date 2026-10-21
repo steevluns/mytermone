@@ -1,0 +1,54 @@
+name: Extract uploaded ZIP into repository
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Find and extract ZIP archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP_FILE="$(find . -maxdepth 2 -type f -iname '*.zip' -not -path './.git/*' | head -n 1)"
+          if [ -z "$ZIP_FILE" ]; then
+            echo "No ZIP archive found in the repository."
+            echo "Upload the project ZIP to the repository root, then run this workflow again."
+            exit 1
+          fi
+          echo "Extracting: $ZIP_FILE"
+          mkdir -p extracted-source
+          unzip -o "$ZIP_FILE" -d extracted-source
+          shopt -s dotglob
+          # If the ZIP contains one top-level project folder, move its contents to the repository root.
+          entries=(extracted-source/*)
+          if [ "${#entries[@]}" -eq 1 ] && [ -d "${entries[0]}" ]; then
+            cp -a "${entries[0]}"/. .
+          else
+            cp -a extracted-source/. .
+          fi
+          rm -rf extracted-source
+          rm -f "$ZIP_FILE"
+          git status --short
+      - name: Commit extracted project files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No extracted changes to commit."
+            exit 0
+          fi
+          git commit -m "Extract uploaded project ZIP"
+          git push
