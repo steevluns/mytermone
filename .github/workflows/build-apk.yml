@@ -34,13 +34,13 @@ jobs:
 
       - name: Install Android build tools and NDK
         run: |
-          sdkmanager "platforms;android-30" "build-tools;30.0.3" "cmake;3.10.2.4988404" "ndk;21.4.7075529"
+          sdkmanager "platforms;android-30" "build-tools;30.0.2" "cmake;3.10.2.4988404" "ndk;21.4.7075529"
 
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
       - name: Build debug APK
-        run: ./gradlew --no-daemon :term:assembleDebug
+        run: ./gradlew --no-daemon :term:assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
