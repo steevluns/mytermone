@@ -1,0 +1,51 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '**.gradle'
+      - '**.properties'
+      - 'term/**'
+      - 'emulatorview/**'
+      - 'libtermexec/**'
+      - '.github/workflows/build-apk.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build debug APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android build tools and NDK
+        run: |
+          sdkmanager "platforms;android-30" "build-tools;30.0.3" "cmake;3.10.2.4988404" "ndk;21.4.7075529"
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Build debug APK
+        run: ./gradlew --no-daemon :term:assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: termoneplus-debug-apk
+          path: term/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
