@@ -22,6 +22,8 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -103,5 +105,13 @@ public class WindowListActivity extends BaseActivity
         WindowListFragment fragment = (WindowListFragment) manager.findFragmentById(R.id.windowlist);
         WindowListAdapter adapter = (WindowListAdapter) fragment.getListAdapter();
         adapter.setSessions(sessions);
+
+        // Show at most six windows at once; additional windows remain scrollable.
+        ListView listView = fragment.getListView();
+        int count = sessions == null ? 0 : Math.min(sessions.size(), 6);
+        int rowHeight = (int) (72 * getResources().getDisplayMetrics().density + 0.5f);
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = count * rowHeight;
+        listView.setLayoutParams(params);
     }
 }
